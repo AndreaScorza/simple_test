@@ -2,18 +2,17 @@ language: python
 python:
 - '3.8'
 - '3.9'
-
 install:
-  - pip3 install .
-  - python3 -m pip install --upgrade build
+- pip3 install .
+- python3 -m pip install --upgrade build
 script:
-  - pytest
+- pytest
 before_deploy: python3 -m build
 deploy:
   provider: pypi
   username: __token__
   password:
-    secure: Ga+rje+j3zf9Rvm3qglgpJycew9rU38ROytMjciqVTD+n2oqpaQRWTCtAmvooE5+hFHXJDV1MW9rTijaBXucCvj12YLz4YqU5arU/NLvKPhJTZx8eaIUjWf8VMcZrYmENVyea9LE0zW9gKGmKLX720bAhMM4WOnel6a69Lo4WiNDbZyKd9J99rZbMc2Nyi1Bxx2XN1YX3Qsme4OR5C3a1rDZNOs8jSCFc7Nuwfes1hk0MSP3VMVHbCUwJLdoMI0Bp8YoRmyhAXGaH5Qz1YxTdZa3/zXRVSL9wruxGH3/o+bmeVR+cPLIxtQhIKgbMDMCf2g782jjKF7EWZ7727R/HOWxpHks0DaXTBgvGL515MsK3CcAbBUFLF/RjoYJ/8lVodE2jRzJ5gGivghn8rGuwcOB6PoNV1edDmlrP3aOWIwur5uK1atAH41qGBLJKZr7EhLXX39MuK52kjwWFl14onisRFbM7R3DEtPRYvskH5vpWJIrQ1wAGkGQeh+eophplTfCGa3fiZfpod05XD4rUgtimXVSlwRLw5dWoJCpo0XcI6lcaf61glofbV291y0Uhbtt1LN6f9dB5VCoSHv+qTKZ8306YMtkUdm8rZ06ldB2PaG5Lum44Y9qAjXL3d3Z0pPRrw8Kye+llXnjfOM90B5heNZz3HPbJHxlixeqzBw=
+    secure: SBjQ10GnTR2lx8RdJMDGSj+Hznee9eNEd3OkReO1jXren+op7sSQ5DrU+K5b2hsIE6cq7fJkjAfBZzSHPSJTb/cXreRBBtUQ5H8jRtkt8XL+EiQEfUT+HXwQgf+h/9Rfxj3FPiG3YudAsZTXzg7gXE+G+TRzuKwOFDwNTQWcvb9NihAto1Fb+JjW4MBa0pi18S3SQIAonZjQhBOY3FI+1YpgX/tNP6v9yKhzw2T2WlqiT+mrzwjww7dpWz4RbpQSr8P2aiPbt3SaKy5Upuw0v7uqJ6UsGfnfoWEu6lvhSoerxPUpN0ucm5oB3bH5Xv7+yGaxl2pkqQoT/205sOeJIX2hJmYXgeOclUOFPwXli2Yzm+dF1axsZvc2WS5Jn761RuknIqx3xmIeLwWqQEnQ5noaocxvxCte8XI7GjCjYa6F4qFonXlG8Bnw+GR6r92tP+8bU7osQmKQASRgSW9b1SRGgLxMzI153qIv+eG8N/bPzSMRuMPgLlDYCXLXupBw3gQ1XzbY2ACYQEWFkBZ3yY0AEqVQO+ZUffCD0fBlEezNQBYwbb/PY+HJWVJGa0McHE/ZhV6QQykR2b8cAILtutyrGYHukewygi6bCRXfB2PERPmB6gXywSd09L2qI1qm0WhBhNUtzcyIJtinpYZQPne7n4frgub8rFnYJX5bLzs=
   on:
     tags: true
   distributions: sdist bdist_wheel
