@@ -5,3 +5,4 @@
 /src/simple_temp_test.egg-info/
 /tests/.pytest_cache/
 /tests/__pycache__/
+/dist/

@@ -8,8 +8,8 @@ install:
   - python3 -m pip install --upgrade build
 script:
   - pytest
+before_deploy: python3 -m build
 deploy:
-  script: python3 -m build
   provider: pypi
   username: __token__
   password:
