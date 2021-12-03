@@ -4,3 +4,4 @@
 /src/hello.egg-info/
 /src/simple_temp_test.egg-info/
 /tests/.pytest_cache/
+/tests/__pycache__/
