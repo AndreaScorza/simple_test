@@ -1,0 +1,4 @@
+/.pytest_cache/
+/build/
+/.idea/
+/src/hello.egg-info/
