@@ -1,18 +1,57 @@
 language: python
 python:
-- '3.8'
-- '3.9'
+  - 3.9
+  - 3.8
+
+branches:
+  only:
+    - main
+    - /^v\d+\.\d+\.\d+$
+
+before_install:
+  - git config --local user.name "LTO Network"
+  - git config --local user.email "info@ltonetwork.com"
 install:
-- pip3 install .
-- python3 -m pip install --upgrade build
+  - pip3 install .
+before_script:
+  - pip3 install pytest
 script:
-- pytest
-before_deploy: python3 -m build
-deploy:
-  provider: pypi
-  username: __token__
-  password:
-    secure: twBsKrypKp33An1L9QjZM93PGmetSmeN5OqWQ2P5tMoT9rxuj0rMQ9XjZPTDJaf8AlQmgMApLntJs3LFl6OQBEn2yJOAw2oKZQen3nS9MrXavVWzaagwkCkBo92ZP5dodUYDIoD/OQ0pW+fIW+cWXDc232SYKzPpcZVJabXUSv+DZvyQP05iwtmGxT9a6BErm0aZkM95iiV7Y2Cab14/xpS0SPao2mVgVsd0X8wPovMSGfCZXu1m2ABPePU5wyJLvFm+3i/eihcopoMq9drpd9aTWNMQ8K1atYZWvYBlLWzNiuMV2XF9sJ7kTU0BO0ewF13mjNtWcdmbGdxY9ue3o8Ocg0zLPdqmdpHJ51LacqfgrK6qYM7vccUqm0h5KProiJ6HgmhF33YVGdRbALLvlLZnMdOpOWC14poPAmsrdGmth4KlK1FSYxTyyV8vP9PF7eO75tesr4lxl490WznnPYgNs49vmAB0IayEzFmQPugnrbkdW2F0OMtZ5l2zJ9nAy/KYrzBQZdpMs0AA75PBtRx1FLiCC9qzodrpS8nDqnxsjjVo0g2QCMJLNrGB+dX47c8KWV/w3Mf8D4D/o5H1fj7e+P7DeczoHr650ZYcLLxru1YoPURJ9UmiNo/79usnPZwhCMtZA1HY5K9KU4SLyVqf+LzyQj9LEenVihO2jpQ=
-  on:
-    tags: true
-  skip_cleanup: true
+  - pytest
+
+stages:
+  - name: test
+    if: tag IS blank
+
+jobs:
+  include:
+    - name: "Publish GitHub release"
+      stage: deploy
+      if: branch = main
+      install:
+        - pip3 install bump2version
+      before_script:
+        - CURRENT_VERSION=$(git describe --tags --abbrev=0)
+        - BUMP=patch
+        - if (git log $CURRENT_VERSION..HEAD | grep -q "\[bump:minor\]"); then BUMP=minor; fi
+        - if (git log $CURRENT_VERSION..HEAD | grep -q "\[bump:major\]"); then BUMP=major; fi
+      script:
+        - bump2version --current-version="$CURRENT_VERSION" $BUMP --tag --no-configured-files
+      deploy:
+        provider: releases
+        api_key:
+          secure: R44pfjd/aofoPjmxTNw69k8OAKOaTqgLSnQAu/hkSHk83sBJ2JJt1a/uSce0ZkdhxNUCK3awSRgTZEYIEmz2eThAgtTzMZK5ZAaxuGcnAGZwssXuJ45FiVjWbTP2aJGmb5zOa1fjtmFAYSqBr87QHRV4YqwqoYod2I1jdV8ZoSS2XJhaoD6ND9Fi+WqL0ZONtILBs71IjNhXMuessawuE6SjMmwZratDhOR2Tk/9jHR6TqStfNwLB9eOjR1CJbKZe0bc6/UUGpLz8gzCcaVn7JBmY/E5eEa17gAzez8MsNuZpPYa14rc91ku6q56rMiO/LMgAgVZCG0dbk7QmQwGv51vEfR+Xo1a6D3580KH2RvoAHpiOv7G+7nH6y7bpXLqVhGUV6pA040ycpUZF5Br2BNba3tY+LOCorG2kelQvvM4jg9dI82zQY0xhNCcItAwaIrFyhDdvc2SvY27hOwtjHe/1GaPhv+ydP/esevoj+U6xAsaO89wxaT2pISG61V8+HTsTxqwYcgQVNbbqmZfV/faJ85WPU4PQCDuXIwMvqhhKMrL/Mju2G82QHILMlXV0O7hBn4aQFOZ7lQNTt/db2fz8fIIXWAJzeVUKOpsgwWU/sRz7Jk/qPBFDVieNvwWeWZ/8NQZVM72r2jdV6H+VQXIqQA0ABI0UttpPmWDHLc=
+        on:
+          all_branches: true
+    - name: "Publish to PyPi"
+      stage: deploy
+      if: tag IS present
+      script:
+        - sed -e "s/version = 0.0.0/version = $TRAVIS_VERSION/" -i "" setup.cfg
+      deploy:
+        provider: pypi
+        username: __token__
+        password:
+          secure: VFwvkDmlq1rDwmKl6GxvWwnxVIyGGYe/hYqGqedOAAKGmI07WeM4oOSefHljuTXtCK2Lfu9RM1/bn1d1bRNROS1wD+sV5Jd2CqyrriCD/PBhL++B2BZvDOotxY3UTAz92UZ2n44dEGIAVFGd6MasA6vPYEEp5BMqUolrFJx0cf7UqZOpr3/YmTriq9wuinIlMuSmArwlPJHn4Th27vVZPHH6hw0VGy4KhUwnXwmEpEGg2r70uxo1GHf4pjUcRJayNAC0d80wSyQW6mFHEc5fE2qI6dbKk1HbZKeWLgjwAl8FzTu5+DGjtvkQoZGPNWc33scGra7zn5J2EgbcxVamam27eAcXjo3zqfAod7M8Ic21tzoB/MwsLCdaqTAWbLHTlF7Xn0pZnPrsEA/LpT9z5MizX4EHZHMvJv43vcALZ+FZd6lLuhYOkQeU6PC+S3ByvuDkOKzLLnp52LXOMbLLgQPt2d+goDPAV/MTMWM2+Ini0w6qogLXlL33osheeN92V8RJFPGKyJ012XNiil8gnpwBUm4KGXkf5Ci/HAaGvUUHLBfGVlQeHx6KG3D+zi08zsoiFhYbrh9cFTaHNXMWXVN1amplmTBFr6RfhV8tnrh7cxAkYhrIfLMJ4VRUKmpoWIg5tKsiIff9vBGdtKWT5VmU3XkQk4VMsCWxK1AxZkI=
+        on:
+          tags: true
+        skip_cleanup: true
